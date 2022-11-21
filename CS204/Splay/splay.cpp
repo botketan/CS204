@@ -32,7 +32,7 @@ void infix(struct node*p)
     if(p==NULL)
     return;
     infix(p->leftChild);
-    cout<<p->val;
+    cout<<p->val<<" ";
     infix(p->rightChild);
 }
 
@@ -82,6 +82,8 @@ void Rightrotate(struct node*p)
 
 void Check(struct node*p)
 {
+    if(p==NULL)
+    return;
     struct node *pa = p->parent;
     if(pa==NULL)
     return;
@@ -99,14 +101,18 @@ void Check(struct node*p)
         {
             if(p==pa->rightChild)
             Leftrotate(p);
-            Rightrotate(g->leftChild);
+            else
+            Rightrotate(pa);
+            Rightrotate(p);
             Check(p);
         }
         else
         {
             if(p==pa->leftChild)
             Rightrotate(p);
-            Leftrotate(g->rightChild);
+            else
+            Leftrotate(pa);
+            Leftrotate(p);
             Check(p);
         }
     }
@@ -122,7 +128,6 @@ struct node * search(struct node*p,int x)
         Check(p);
         return temp;
     }
-   
     if(x>p->val)
     search(p->rightChild,x);
     else
@@ -183,32 +188,23 @@ void del(struct node *p)
     if(p->leftChild!=NULL && p->rightChild!=NULL)
     {
         struct node *pt = p->leftChild;
+        struct node *rightT = p->rightChild;
+        root = p->leftChild;
         while(pt->rightChild!=NULL)
         {
             pt= pt->rightChild;
         }
-        swap(pt->val,p->val);
-        del(pt);
+        Check(pt);
+        root->rightChild = rightT;
     }
     else
     {
         if(p->leftChild!=NULL)
-        {
-            if(p->parent->leftChild==p)
-            p->parent->leftChild = p->leftChild;
-            else
-            p->parent->rightChild = p->leftChild;
-            p->leftChild->parent = p->parent;
-        }
+                root = p->leftChild;
         else
-        {
-            if(p->parent->leftChild==p)
-            p->parent->leftChild = p->rightChild;
-            else
-            p->parent->rightChild = p->rightChild;
-            if(p->rightChild!=NULL)
-            p->rightChild->parent = p->parent;
-        }
+                root = p->rightChild;
+        if(root!=NULL)
+            root->parent = NULL;
         free(p);
     }
 }
@@ -241,6 +237,7 @@ int main()
     prefix(root);
     cin>>n;
     del(search(root,n));
-    prefix(root);
     infix(root);
+    cout<<"\n";
+    prefix(root);
 }
